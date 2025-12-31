@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Records - Presence Maker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    /* ---------- Dark Mode ---------- */
+    body.dark-mode { background:#1a1a1a; color:#fff; }
+    body.dark-mode table { background:#2d2d2d; color:#fff; }
+    body.dark-mode th { background:#d97706; color:#fff; }
+    body.dark-mode td { border-color:#555; }
+    body.dark-mode .qr-box { background:#2d2d2d; color:#fff; }
+    body.dark-mode .scanner-overlay { background:#d97706; }
+    body.dark-mode .action-btn,
+    body.dark-mode .submit-btn { background:#d97706; color:#fff; }
+    body.dark-mode nav, body.dark-mode #sidebar { background:#333; color:#fff; }
+    body.dark-mode nav a, body.dark-mode #sidebar a { color:#fff !important; }
+
+    /* ---------- Navbar ---------- */
+    nav {
+      background:#facc15;
+      border-bottom:2px solid #ca8a04;
+      position:fixed;top:0;left:0;width:100%;z-index:50;
+    }
+    nav .container {
+      max-width:1200px;
+      margin:auto;
+      padding:12px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    nav .logo-light, nav .logo-dark { height:32px; margin-right:8px; }
+    nav a {
+      color:#000;
+      font-weight:500;
+      margin-left:16px;
+      text-decoration:none;
+      font-size:14px;
+    }
+    nav .menu { display:flex; align-items:center; }
+    nav .theme-btn {
+      margin-left:16px;
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      height:22px;
+      width:42px;
+      border-radius:9999px;
+      background:#fde047;
+    }
+    nav .theme-btn span {
+      width:16px;height:16px;
+      background:#fff;
+      border-radius:50%;
+      transform:translateX(0);
+      transition:transform 0.3s;
+    }
+    nav button#toggleSidebar {
+      font-size:22px;
+      background:none;
+      border:none;
+      display:none;
+    }
+    @media(max-width:768px){
+      nav .menu { display:none; }
+      nav button#toggleSidebar { display:block; }
+    }
+
+    /* ---------- Sidebar ---------- */
+    #sidebar {
+      position:fixed;top:0;right:0;height:100%;width:260px;
+      background:#facc15;color:#000;
+      transform:translateX(100%);
+      transition:transform 0.5s;
+      z-index:50;
+      box-shadow:-2px 0 6px rgba(0,0,0,0.2);
+    }
+    #sidebar .header {
+      display:flex;justify-content:space-between;align-items:center;
+      padding:14px;border-bottom:1px solid #eab308;
+    }
+    #sidebar .profile {
+      text-align:center;
+      padding:20px 14px;
+      border-bottom:1px solid #eab308;
+    }
+    #sidebar .profile img {
+      width:70px;height:70px;border-radius:50%;
+      border:2px solid #333;
+    }
+    #sidebar nav { display:flex;flex-direction:column;padding:14px; }
+    #sidebar nav a {
+      color:#000;
+      text-decoration:none;
+      margin-bottom:12px;
+      font-weight:500;
+      font-size:14px;
+    }
+    #sidebar .footer {
+      border-top:1px solid #eab308;
+      padding:14px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    #sidebar .theme-btn {
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      height:22px;
+      width:42px;
+      border-radius:9999px;
+      background:#fde047;
+    }
+    #sidebar .theme-btn span {
+      width:16px;height:16px;
+      background:#fff;
+      border-radius:50%;
+      transition:transform 0.3s;
+    }
+    #sidebarOverlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:40;display:none; }
+  </style>
+</head>
+<body class="bg-yellow-50">
+  <!-- Navbar -->
+   <nav>
+    <div class="container">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img src="{{ url_for('static', filename='logo-black.png') }}" class="logo-light" />
+        <!-- <img src="{{ url_for('static', filename='logo-white.png') }}" class="logo-dark" /> -->
+        <h1 style="font-size:18px;font-weight:bold;letter-spacing:2px;">Attendance</h1>
+      </div>
+      <div class="menu">
+        <a href="http://127.0.0.1:5000/dashboard"><i class="fas fa-chalkboard-teacher"></i> Dashboard</a>
+        <a href="http://127.0.0.1:5000/attendance"><i class="fas fa-clipboard-check"></i> Mark Attendance</a>
+        <a href="http://127.0.0.1:5000/attendance_view" target="_blank"><i class="fas fa-eye"></i> View Attendance</a>
+       <a href="{{ url_for('logout') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+        <button id="navThemeToggle" class="theme-btn"><span id="navToggleThumb"></span></button>
+      </div>
+      <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
+    </div>
+  </nav> 
+
+  <!-- Sidebar -->
+   <div id="sidebar">
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <img src="{{ url_for('static', filename='logo-black.png') }}" class="logo-light" />
+        <img src="{{ url_for('static', filename='logo-white.png') }}" class="logo-dark" />
+        <span style="font-size:16px;font-weight:600;">Menu</span>
+      </div>
+      <button id="closeSidebar" style="font-size:28px;background:none;border:none;">&times;</button>
+    </div>
+    <div class="profile">
+      <img src="https://via.placeholder.com/100" />
+      <h3 style="margin-top:12px;font-size:18px;font-weight:600;">Mr. Niraj Kumar</h3>
+      <p style="font-size:13px;">Computer Science Dept.</p>
+    </div>
+    <nav>
+        <a href="http://127.0.0.1:5000/dashboard"><i class="fas fa-chalkboard-teacher"></i> Dashboard</a>
+      <a href="http://127.0.0.1:5000/attendance"><i class="fas fa-clipboard-check"></i> Attendance</a>
+      <a href="http://127.0.0.1:5000/attendance_view" target="_blank"><i class="fas fa-eye"></i> View Attendance</a>
+     <a href="{{ url_for('logout') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+    </nav>
+    <div class="footer">
+      <span style="font-size:12px;">Dark Mode</span>
+      <button id="themeToggleBtn" class="theme-btn"><span id="toggleThumb"></span></button>
+    </div>
+  </div>
+  <div id="sidebarOverlay"></div>
+
+  <div class="max-w-6xl mx-auto p-4 mt-20">
+    <h1 class="text-xl sm:text-2xl font-bold mb-4">📋 Attendance Records</h1>
+
+    <!-- Date Filter -->
+    <div class="flex flex-wrap gap-2 sm:gap-3 mb-4 items-center">
+      <label for="date" class="font-medium text-sm sm:text-base">Select Date:</label>
+      <input type="date" id="date" class="p-2 border rounded text-sm">
+      <button onclick="fetchAttendance()" class="bg-yellow-500 px-3 sm:px-4 py-2 rounded text-white text-sm">Filter</button>
+      <button onclick="resetFilter()" class="bg-gray-400 px-3 sm:px-4 py-2 rounded text-white text-sm">Reset</button>
+      <button onclick="resetAttendance()" class="bg-red-500 px-3 sm:px-4 py-2 rounded text-white text-sm">Reset All</button>
+    </div>
+
+    <!-- Selected Date Heading -->
+    <h2 id="dateHeading" class="text-base sm:text-lg font-semibold mb-3">All Records</h2>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full border border-gray-300 text-xs sm:text-sm bg-white">
+        <thead>
+          <tr class="bg-yellow-400">
+            <th class="p-2 border">ID</th>
+            <th class="p-2 border">Student ID</th>
+            <th class="p-2 border">Class</th>
+            <th class="p-2 border">Subject</th>
+            <th class="p-2 border">Day</th>
+            <th class="p-2 border">Status</th>
+            <th class="p-2 border">Marked At</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    /* Sidebar & Theme toggles */
+    const sidebar=document.getElementById('sidebar');
+    const overlay=document.getElementById('sidebarOverlay');
+    document.getElementById('toggleSidebar').addEventListener('click',()=>{sidebar.style.transform='translateX(0)';overlay.style.display='block';});
+    document.getElementById('closeSidebar').addEventListener('click',()=>{sidebar.style.transform='translateX(100%)';overlay.style.display='none';});
+    overlay.addEventListener('click',()=>{sidebar.style.transform='translateX(100%)';overlay.style.display='none';});
+
+    let darkMode=false;
+    function toggleDarkMode(){
+      darkMode=!darkMode;
+      document.body.classList.toggle('dark-mode',darkMode);
+      document.getElementById('toggleThumb').style.transform=darkMode?'translateX(20px)':'translateX(0)';
+      document.getElementById('navToggleThumb').style.transform=darkMode?'translateX(20px)':'translateX(0)';
+    }
+    document.getElementById('themeToggleBtn').addEventListener('click',toggleDarkMode);
+    document.getElementById('navThemeToggle').addEventListener('click',toggleDarkMode);
+
+    async function fetchAttendance() {
+      const date = document.getElementById("date").value;
+      const heading = document.getElementById("dateHeading");
+      let url = "/get_attendance";
+
+      if (date) {
+        url += "?date=" + date;
+        heading.textContent = "Attendance for " + date;
+      } else {
+        heading.textContent = "All Records";
+      }
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const tbody = document.getElementById("attendanceTable");
+      tbody.innerHTML = "";
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-3">No records found</td></tr>`;
+        return;
+      }
+
+      data.forEach((row, i) => {
+  tbody.innerHTML += `
+    <tr>
+      <td class="border px-2 py-1">${i+1}</td>
+      <td class="border px-2 py-1">${row.student_id}</td>
+      <td class="border px-2 py-1">${row.class_name}</td>
+      <td class="border px-2 py-1">${row.subject}</td>
+      <td class="border px-2 py-1">${row.day}</td>
+      <td class="border px-2 py-1">${row.status}</td>
+      <td class="border px-2 py-1">${row.marked_at}</td>
+    </tr>
+  `;
+});
+
+    }
+
+    async function resetAttendance() {
+      if (!confirm("⚠ Are you sure you want to delete all attendance records?")) return;
+
+      const res = await fetch("/reset_attendance", { method: "POST" });
+      const result = await res.json();
+      alert(result.message || "All records deleted");
+
+      document.getElementById("date").value = "";
+      document.getElementById("dateHeading").textContent = "All Records";
+
+      fetchAttendance();
+    }
+
+    // Load data on page start
+    window.onload = fetchAttendance;
+  </script>
+</body>
+</html>

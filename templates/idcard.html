@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card Generator</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <style>
+
+          /* ---------- Dark Mode ---------- */
+    body.dark-mode { background:#1a1a1a; color:#fff; }
+    body.dark-mode table { background:#2d2d2d; color:#fff; }
+    body.dark-mode th { background:#d97706; color:#fff; }
+    body.dark-mode td { border-color:#555; }
+    body.dark-mode .qr-box { background:#2d2d2d; color:#fff; }
+    body.dark-mode .scanner-overlay { background:#d97706; }
+    body.dark-mode .action-btn,
+    body.dark-mode .submit-btn { background:#d97706; color:#fff; }
+    body.dark-mode nav, body.dark-mode #sidebar { background:#333; color:#fff; }
+    body.dark-mode nav a, body.dark-mode #sidebar a { color:#fff !important; }
+
+    /* ---------- Navbar ---------- */
+    nav {
+      background:#facc15;
+      border-bottom:2px solid #ca8a04;
+      position:fixed;top:0;left:0;width:100%;z-index:50;
+    }
+    nav .container {
+      max-width:1200px;
+      margin:auto;
+      padding:12px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    nav .logo-light, nav .logo-dark { height:32px; margin-right:8px; }
+    nav a {
+      color:#000;
+      font-weight:500;
+      margin-left:16px;
+      text-decoration:none;
+      font-size:14px;
+    }
+    nav .menu { display:flex; align-items:center; }
+    nav .theme-btn {
+      margin-left:16px;
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      height:22px;
+      width:42px;
+      border-radius:9999px;
+      background:#fde047;
+    }
+    nav .theme-btn span {
+      width:16px;height:16px;
+      background:#fff;
+      border-radius:50%;
+      transform:translateX(0);
+      transition:transform 0.3s;
+    }
+    nav button#toggleSidebar {
+      font-size:22px;
+      background:none;
+      border:none;
+      display:none;
+    }
+    @media(max-width:768px){
+      nav .menu { display:none; }
+      nav button#toggleSidebar { display:block; }
+    }
+
+    /* ---------- Sidebar ---------- */
+    #sidebar {
+      position:fixed;top:0;right:0;height:100%;width:260px;
+      background:#facc15;color:#000;
+      transform:translateX(100%);
+      transition:transform 0.5s;
+      z-index:50;
+      box-shadow:-2px 0 6px rgba(0,0,0,0.2);
+    }
+    #sidebar .header {
+      display:flex;justify-content:space-between;align-items:center;
+      padding:14px;border-bottom:1px solid #eab308;
+    }
+    #sidebar .profile {
+      text-align:center;
+      padding:20px 14px;
+      border-bottom:1px solid #eab308;
+    }
+    #sidebar .profile img {
+      width:70px;height:70px;border-radius:50%;
+      border:2px solid #333;
+    }
+    #sidebar nav { display:flex;flex-direction:column;padding:14px; }
+    #sidebar nav a {
+      color:#000;
+      text-decoration:none;
+      margin-bottom:12px;
+      font-weight:500;
+      font-size:14px;
+    }
+    #sidebar .footer {
+      border-top:1px solid #eab308;
+      padding:14px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    #sidebar .theme-btn {
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      height:22px;
+      width:42px;
+      border-radius:9999px;
+      background:#fde047;
+    }
+    #sidebar .theme-btn span {
+      width:16px;height:16px;
+      background:#fff;
+      border-radius:50%;
+      transition:transform 0.3s;
+    }
+    #sidebarOverlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:40;display:none; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #0d47a1;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container {
+            background: #efe1e1;
+            padding: 25px;
+            border-radius: 12px;
+            border: 5px solid rgba(255, 204, 39, 0.984);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            margin-bottom: 25px;
+            width: 370px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .form-container label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: bold;
+            color: #1a237e;
+        }
+
+        .form-container input {
+            width: 95%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-container input:focus {
+            border-color: #1a237e;
+            box-shadow: 0 0 5px rgba(26, 35, 126, 0.6);
+        }
+
+        .form-container button {
+            margin-top: 18px;
+            width: 100%;
+            padding: 12px;
+            background: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background: #0d175c;
+        }
+
+        .id-card {
+            width: 300px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .header {
+            background: #1a237e;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header img {
+            height: 50px;
+        }
+
+        .photo {
+            margin: 15px 0 10px;
+            border: 4px solid rgba(233, 199, 11, 0.995);
+            border-radius: 12px;
+            overflow: hidden;
+            width: 120px;
+            height: 140px;
+        }
+
+        .photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .student-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .student-id,
+        .student-father,
+        .student-mobile {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .qr-code {
+            margin: 10px 0;
+            border: 3px solid #1a237e;
+            padding: 5px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .footer {
+            background: #1a237e;
+            color: white;
+            font-size: 10px;
+            padding: 8px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        #downloadBtn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: green;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<nav>
+    <div class="container">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img src="{{ url_for('static', filename='logo-black.png') }}" class="logo-light" />
+        <!-- <img src="{{ url_for('static', filename='logo-white.png') }}" class="logo-dark" /> -->
+        <h1 style="font-size:18px;font-weight:bold;letter-spacing:2px;">Teacher Dashboard</h1>
+      </div>
+      <div class="menu">
+          <a href="{{ url_for('idcard') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+          <i class="fas fa-home"></i> Id-Card
+        </a>
+        <a href="http://127.0.0.1:5000/dashboard"><i class="fas fa-chalkboard-teacher"></i> Dashboard</a>
+        <a href="http://127.0.0.1:5000/attendance"><i class="fas fa-clipboard-check"></i> Mark Attendance</a>
+        <a href="http://127.0.0.1:5000/attendance_view" target="_blank"><i class="fas fa-eye"></i> View Attendance</a>
+       <a href="{{ url_for('logout') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+        <button id="navThemeToggle" class="theme-btn"><span id="navToggleThumb"></span></button>
+      </div>
+      <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
+    </div>
+  </nav> 
+
+  <!-- Sidebar -->
+   <div id="sidebar">
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <img src="{{ url_for('static', filename='logo-black.png') }}" class="logo-light" />
+        <img src="{{ url_for('static', filename='logo-white.png') }}" class="logo-dark" />
+        <span style="font-size:16px;font-weight:600;">Menu</span>
+      </div>
+      <button id="closeSidebar" style="font-size:28px;background:none;border:none;">&times;</button>
+    </div>
+    <div class="profile">
+      <img src="https://via.placeholder.com/100" />
+      <h3 style="margin-top:12px;font-size:18px;font-weight:600;">Mr. Niraj Kumar</h3>
+      <p style="font-size:13px;">Computer Science Dept.</p>
+    </div>
+    <nav>
+        <a href="{{ url_for('idcard') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+          <i class="fas fa-home"></i> Id-Card
+        </a>
+        <a href="http://127.0.0.1:5000/dashboard"><i class="fas fa-chalkboard-teacher"></i> Dashboard</a>
+      <a href="http://127.0.0.1:5000/attendance"><i class="fas fa-clipboard-check"></i> Attendance</a>
+      <a href="http://127.0.0.1:5000/attendance_view" target="_blank"><i class="fas fa-eye"></i> View Attendance</a>
+     <a href="{{ url_for('logout') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+    </nav>
+    <div class="footer">
+      <span style="font-size:12px;">Dark Mode</span>
+      <button id="themeToggleBtn" class="theme-btn"><span id="toggleThumb"></span></button>
+    </div>
+  </div>
+  <div id="sidebarOverlay"></div>
+    <h2>Student ID Card Generator</h2>
+
+    <form class="form-container" onsubmit="generateID(event)" enctype="multipart/form-data">
+        <label>Full Name:</label>
+        <input type="text" id="name" placeholder="none" name="name" required>
+
+        <label>Father Name:</label>
+        <input type="text" id="fatherName" placeholder="none" name="fatherName" required>
+
+        <label>Mobile Number:</label>
+        <input type="text" id="mobile" name="mobile" placeholder="none" maxlength="10" required>
+
+        <label>Student ID:</label>
+        <input type="text" id="studentId" placeholder="none" name="studentId" required>
+
+        <label>Upload Photo:</label>
+        <input type="file" id="photoUpload" placeholder="none" name="photoUpload" accept="image/*">
+
+        <button type="submit">Generate & Save ID Card</button>
+    </form>
+
+
+    <div id="idCard" class="id-card">
+        <div class="header">
+            <img src="{{ url_for('static', filename='logo/logo.png') }}" alt="Logo">
+            NATIONAL INSTITUTE OF TECHNOLOGY NIEX
+        </div>
+        <div class="photo" id="photoBox">
+            <img id="studentPhoto" src="">
+        </div>
+        <div class="student-name" id="studentName">NAME HERE</div>
+        <div class="student-id" id="studentID">ID: XXXXXXX</div>
+        <div class="qr-code" id="qrcode">Scan for Verification</div>
+        <div class="footer">
+            www.presence_maker.ac.in | Email: presence_maker.ac.in | Helpline 1234-567-890
+        </div>
+    </div>
+
+    <button id="downloadBtn" onclick="downloadID()">Download ID Card</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+
+         const sidebar=document.getElementById('sidebar');
+    const overlay=document.getElementById('sidebarOverlay');
+    document.getElementById('toggleSidebar').addEventListener('click',()=>{sidebar.style.transform='translateX(0)';overlay.style.display='block';});
+    document.getElementById('closeSidebar').addEventListener('click',()=>{sidebar.style.transform='translateX(100%)';overlay.style.display='none';});
+    overlay.addEventListener('click',()=>{sidebar.style.transform='translateX(100%)';overlay.style.display='none';});
+
+    let darkMode=false;
+    function toggleDarkMode(){
+      darkMode=!darkMode;
+      document.body.classList.toggle('dark-mode',darkMode);
+      document.getElementById('toggleThumb').style.transform=darkMode?'translateX(20px)':'translateX(0)';
+      document.getElementById('navToggleThumb').style.transform=darkMode?'translateX(20px)':'translateX(0)';
+    }
+    document.getElementById('themeToggleBtn').addEventListener('click',toggleDarkMode);
+    document.getElementById('navThemeToggle').addEventListener('click',toggleDarkMode);
+        function generateID(event) {
+            event.preventDefault(); // page reload rokne ke liye
+
+            const formData = new FormData();
+            formData.append("name", document.getElementById("name").value);
+            formData.append("fatherName", document.getElementById("fatherName").value);
+            formData.append("mobile", document.getElementById("mobile").value);
+            formData.append("studentId", document.getElementById("studentId").value);
+            formData.append("photoUpload", document.getElementById("photoUpload").files[0]);
+
+            fetch("/save_student", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("studentName").innerText = data.data.name;
+                        document.getElementById("studentID").innerText = "ID: " + data.data.studentId;
+                        document.getElementById("studentPhoto").src = data.data.photo;
+
+                        document.getElementById("qrcode").innerHTML = "";
+                        new QRCode(document.getElementById("qrcode"), {
+                            text: data.data.name + " | " + data.data.studentId,
+                            width: 125,
+                            height: 125
+                        });
+
+                        document.getElementById("idCard").style.display = "flex";
+                        document.getElementById("downloadBtn").style.display = "inline-block";
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                });
+        }
+        function downloadID() {
+            const card = document.getElementById("idCard");
+
+            // Ensure card is visible before capturing
+            card.scrollIntoView();
+
+            html2canvas(card, {
+                scale: 3,                // High quality
+                useCORS: true,           // Cross-origin images fix
+                allowTaint: true,
+                backgroundColor: null    // Transparent background
+            }).then(canvas => {
+                const link = document.createElement("a");
+                link.download = "ID_Card.png";   // File name
+                link.href = canvas.toDataURL("image/png"); // Image URL
+                link.click(); // Trigger download
+            }).catch(err => {
+                console.error("Download error:", err);
+                alert("Download failed, please try again!");
+            });
+        }
+    </script>
+</body>
+
+</html>

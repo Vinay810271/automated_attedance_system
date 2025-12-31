@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compact Teacher & Admin Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #111;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: #1a1a1a;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            position: relative;
+            color: #fff;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffcc00;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #222;
+            color: #fff;
+        }
+
+        input:focus {
+            border-color: #ffcc00;
+            box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+            outline: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #ffcc00;
+            color: #111;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .submit-btn:hover {
+            background: #e6b800;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 204, 0, 0.3);
+        }
+
+        .back-btn {
+            padding: 8px 16px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: #444;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 16px;
+            color: #bbb;
+            font-size: 14px;
+        }
+
+        .form-footer a {
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .success-message {
+            text-align: center;
+            background: #4ade80;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .page {
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .role-card {
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 20px;
+            border-radius: 12px;
+            background: #222;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255, 204, 0, 0.2);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffcc00;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                border-radius: 12px;
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Main Selection Page -->
+        <div class="page active" id="selection-page">
+            <h2>Welcome to Education Portal</h2>
+            <p style="text-align: center; margin-bottom: 20px; color: #bbb; font-size: 14px;">Please select your role to continue</p>
+
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="role-card" data-role="teacher">
+                    <div style="width: 80px; height: 80px; background: #ffcc00; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: #111; font-size: 32px;">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 style="color: #ffcc00; margin-bottom: 8px;">Teacher</h3>
+                    <p style="color: #bbb; font-size: 14px;">Access teaching resources and student management</p>
+                </div>
+
+                <div class="role-card" data-role="admin">
+                    <div style="width: 80px; height: 80px; background: #e6b800; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: #111; font-size: 32px;">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 style="color: #e6b800; margin-bottom: 8px;">Administrator</h3>
+                    <p style="color: #bbb; font-size: 14px;">Manage system settings and user accounts</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher Login Page -->
+        <div class="page" id="teacher-login-page">
+            <button class="back-btn" id="back-from-teacher-login"><i class="fas fa-arrow-left"></i> Back</button>
+            <h2>Teacher Login</h2>
+            <div class="success-message" id="teacher-login-success">Login successful! Redirecting...</div>
+            <form id="teacher-login-form">
+                <div class="form-group">
+                    <label for="teacher-login-id">Teacher ID</label>
+                    <input type="text" id="teacher-login-id" placeholder="Enter your teacher ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-login-password">Password</label>
+                    <input type="password" id="teacher-login-password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="submit-btn">Login as Teacher</button>
+            </form>
+            <div class="form-footer">Don't have an account? <a href="#" id="goto-teacher-register">Register as Teacher</a></div>
+        </div>
+
+        <!-- Teacher Register Page -->
+        <div class="page" id="teacher-register-page">
+            <button class="back-btn" id="back-from-teacher-register"><i class="fas fa-arrow-left"></i> Back</button>
+            <h2>Teacher Registration</h2>
+            <div class="success-message" id="teacher-register-success">Registration successful! You can now login.</div>
+            <form id="teacher-register-form">
+                <div class="form-group">
+                    <label for="teacher-register-name">Full Name</label>
+                    <input type="text" id="teacher-register-name" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-register-id">Teacher ID</label>
+                    <input type="text" id="teacher-register-id" placeholder="Enter your teacher ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-register-password">Password</label>
+                    <input type="password" id="teacher-register-password" placeholder="Create a password" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-register-confirm">Confirm Password</label>
+                    <input type="password" id="teacher-register-confirm" placeholder="Confirm your password" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-register-subject">Subject Specialization</label>
+                    <input type="text" id="teacher-register-subject" placeholder="e.g. Mathematics, Science" required>
+                </div>
+                <button type="submit" class="submit-btn">Register as Teacher</button>
+            </form>
+            <div class="form-footer">Already have an account? <a href="#" id="goto-teacher-login">Login as Teacher</a></div>
+        </div>
+
+        <!-- Admin Login Page -->
+        <div class="page" id="admin-login-page">
+            <button class="back-btn" id="back-from-admin-login"><i class="fas fa-arrow-left"></i> Back</button>
+            <h2>Admin Login</h2>
+            <div class="success-message" id="admin-login-success">Login successful! Redirecting...</div>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="admin-login-id">Admin ID</label>
+                    <input type="text" id="admin-login-id" placeholder="Enter admin ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-login-password">Password</label>
+                    <input type="password" id="admin-login-password" placeholder="Enter your password" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-login-key">Admin Security Key</label>
+                    <input type="password" id="admin-login-key" placeholder="Enter security key" required>
+                </div>
+                <button type="submit" class="submit-btn">Login as Admin</button>
+            </form>
+            <div class="form-footer">Need admin access? <a href="#" id="goto-admin-register">Register as Admin</a></div>
+        </div>
+
+        <!-- Admin Register Page -->
+        <div class="page" id="admin-register-page">
+            <button class="back-btn" id="back-from-admin-register"><i class="fas fa-arrow-left"></i> Back</button>
+            <h2>Admin Registration</h2>
+            <div class="success-message" id="admin-register-success">Registration successful! You can now login.</div>
+            <form id="admin-register-form">
+                <div class="form-group">
+                    <label for="admin-register-name">Full Name</label>
+                    <input type="text" id="admin-register-name" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-register-id">Admin ID</label>
+                    <input type="text" id="admin-register-id" placeholder="Enter admin ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-register-password">Password</label>
+                    <input type="password" id="admin-register-password" placeholder="Create a password" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-register-confirm">Confirm Password</label>
+                    <input type="password" id="admin-register-confirm" placeholder="Confirm your password" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-register-key">Admin Security Key</label>
+                    <input type="password" id="admin-register-key" placeholder="Enter security key" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-register-org">Organization</label>
+                    <input type="text" id="admin-register-org" placeholder="Enter organization name" required>
+                </div>
+                <button type="submit" class="submit-btn">Register as Admin</button>
+            </form>
+            <div class="form-footer">Already have an account? <a href="#" id="goto-admin-login">Login as Admin</a></div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const pages = document.querySelectorAll('.page');
+    const selectionPage = document.getElementById('selection-page');
+    const teacherLoginPage = document.getElementById('teacher-login-page');
+    const teacherRegisterPage = document.getElementById('teacher-register-page');
+    const adminLoginPage = document.getElementById('admin-login-page');
+    const adminRegisterPage = document.getElementById('admin-register-page');
+
+    function showPage(page) {
+        pages.forEach(p => p.classList.remove('active'));
+        page.classList.add('active');
+    }
+
+    // Role selection
+    document.querySelectorAll('.role-card').forEach(card => {
+        card.addEventListener('click', function () {
+            const role = this.getAttribute('data-role');
+            if (role === 'teacher') showPage(teacherLoginPage);
+            else if (role === 'admin') showPage(adminLoginPage);
+        });
+    });
+
+    // Teacher navigation
+    document.getElementById('goto-teacher-register').addEventListener('click', e => { 
+        e.preventDefault(); 
+        showPage(teacherRegisterPage); 
+    });
+    document.getElementById('goto-teacher-login').addEventListener('click', e => { 
+        e.preventDefault(); 
+        showPage(teacherLoginPage); 
+    });
+    document.getElementById('back-from-teacher-login').addEventListener('click', () => showPage(selectionPage));
+    document.getElementById('back-from-teacher-register').addEventListener('click', () => showPage(teacherLoginPage));
+
+    // Admin navigation
+    document.getElementById('goto-admin-register').addEventListener('click', e => { 
+        e.preventDefault(); 
+        showPage(adminRegisterPage); 
+    });
+    document.getElementById('goto-admin-login').addEventListener('click', e => { 
+        e.preventDefault(); 
+        showPage(adminLoginPage); 
+    });
+    document.getElementById('back-from-admin-login').addEventListener('click', () => showPage(selectionPage));
+    document.getElementById('back-from-admin-register').addEventListener('click', () => showPage(adminLoginPage));
+
+    // ================= Teacher Login =================
+    document.getElementById('teacher-login-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const teacherId = document.getElementById('teacher-login-id').value;
+        const password = document.getElementById('teacher-login-password').value;
+        
+        const res = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ role: "teacher", user_id: teacherId, password })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            document.getElementById('teacher-login-success').style.display = 'block';
+            setTimeout(() => window.location.href = "/dashboard", 1200);
+        } else {
+            alert(data.error || "Teacher login failed");
+        }
+    });
+
+    // ================= Teacher Register =================
+    document.getElementById('teacher-register-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const name = document.getElementById('teacher-register-name').value;
+        const teacherId = document.getElementById('teacher-register-id').value;
+        const password = document.getElementById('teacher-register-password').value;
+        const confirmPassword = document.getElementById('teacher-register-confirm').value;
+        const subject = document.getElementById('teacher-register-subject').value;
+
+        if (password !== confirmPassword) { 
+            alert("Passwords don't match!"); 
+            return; 
+        }
+
+        const res = await fetch("/register_teacher", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, teacher_id: teacherId, password, subject })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            document.getElementById('teacher-register-success').style.display = 'block';
+            setTimeout(() => showPage(teacherLoginPage), 1200);
+        } else {
+            alert(data.error || "Teacher registration failed");
+        }
+    });
+
+    // ================= Admin Login =================
+    document.getElementById('admin-login-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const adminId = document.getElementById('admin-login-id').value;
+        const password = document.getElementById('admin-login-password').value;
+        const securityKey = document.getElementById('admin-login-key').value;
+
+        const res = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ role: "admin", user_id: adminId, password, security_key: securityKey })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            document.getElementById('admin-login-success').style.display = 'block';
+            setTimeout(() => window.location.href = "/admin", 1200);
+        } else {
+            alert(data.error || "Admin login failed");
+        }
+    });
+
+    // ================= Admin Register =================
+    document.getElementById('admin-register-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const name = document.getElementById('admin-register-name').value;
+        const adminId = document.getElementById('admin-register-id').value;
+        const password = document.getElementById('admin-register-password').value;
+        const confirmPassword = document.getElementById('admin-register-confirm').value;
+        const securityKey = document.getElementById('admin-register-key').value;
+        const organization = document.getElementById('admin-register-org').value;
+
+        if (password !== confirmPassword) { 
+            alert("Passwords don't match!"); 
+            return; 
+        }
+
+        const res = await fetch("/register_admin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, admin_id: adminId, password, security_key: securityKey, organization })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            document.getElementById('admin-register-success').style.display = 'block';
+            setTimeout(() => showPage(adminLoginPage), 1200);
+        } else {
+            alert(data.error || "Admin registration failed");
+        }
+    });
+});
+</script>
+
+</body>
+</html>

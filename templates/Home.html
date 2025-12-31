@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presence Maker - School Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ==== Base ==== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #111;
+            color: #eee;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ---------- Logo Styling ---------- */
+        .logo-light,
+        .logo-dark {
+            height: 48px;
+            /* पहले 32px था, अब बड़ा कर दिया */
+            object-fit: contain;
+            filter: brightness(0) saturate(100%) invert(74%) sepia(96%) saturate(748%) hue-rotate(6deg) brightness(102%) contrast(102%);
+            /* यह filter logo ko yellow tint dega */
+        }
+
+        /* Default state */
+        .logo-light {
+            display: inline;
+        }
+
+        .logo-dark {
+            display: none;
+        }
+
+        /* Dark mode ke liye toggle */
+        body.dark-mode .logo-light {
+            display: none;
+        }
+
+        body.dark-mode .logo-dark {
+            display: inline;
+        }
+
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* ==== Header/Navbar ==== */
+        header {
+            background: #0c0c0c;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: #ffb703;
+            font-size: 26px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover i {
+            transform: rotate(-20deg);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+
+        nav a {
+            color: #eee;
+            font-weight: 500;
+            font-size: 14px;
+            transition: .3s;
+            position: relative;
+        }
+
+        nav a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #ffb703;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #ffb703;
+        }
+
+        nav a:hover:after {
+            width: 100%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            overflow-x: hidden;
+            transition: 0.4s;
+            padding-top: 60px;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar a {
+            padding: 12px 24px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #eee;
+            display: block;
+            transition: 0.3s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffb703;
+        }
+
+        .btn-signup {
+      padding: 10px 20px;
+      border: 1px solid #ffb703;
+      background: transparent;
+      color: #ffb703;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .3s;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .btn-signup:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: #ffb703;
+      transition: all 0.4s ease;
+      z-index: -1;
+    }
+
+    .btn-signup:hover {
+      color: #111;
+    }
+
+    .btn-signup:hover:before {
+      left: 0;
+    }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Hamburger */
+        .hamburger {
+            display: none;
+            font-size: 26px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+            }
+
+            .hamburger {
+                display: block;
+            }
+        }
+
+        /* ===== Signup Button (Home page style) ===== */
+        .btn-signup {
+            padding: 8px 18px;
+            border: 1px solid #ffb703;
+            background: transparent;
+            color: #ffb703 !important;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: .3s;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-signup:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #ffb703;
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+
+        .btn-signup:hover {
+            color: #111 !important;
+        }
+
+        .btn-signup:hover:before {
+            left: 0;
+        }
+
+        /* Sidebar में button ko alag alignment */
+        #sidebar .btn-signup {
+            display: block;
+            margin: 10px auto;
+            text-align: center;
+            width: 80%;
+        }
+
+
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 30px;
+            height: 25px;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            width: 100%;
+            height: 3px;
+            background-color: #eee;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        /* ==== Hero ==== */
+        .hero {
+            height: 75vh;
+            min-height: 480px;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1470&q=80') center/cover no-repeat;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            padding: 20px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: 52px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            color: #ffb703;
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero h1 span:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 183, 3, 0.3);
+            z-index: -1;
+            border-radius: 4px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            opacity: .9;
+            margin-bottom: 30px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-buttons button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-buttons button:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: -100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .hero-buttons button:hover:after {
+            left: 100%;
+        }
+
+        .teacher-btn {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .principal-btn {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .hero-buttons button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ==== Services / Roles ==== */
+        .responsibilities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .responsibilities:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ffb703, transparent);
+        }
+
+        .card {
+            background: linear-gradient(145deg, #1a1a1a, #222);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(50px) rotateX(10deg);
+            transition: transform 0.6s ease, opacity 0.6s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .card:before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, #ffb8035d, #3b82f65e, #10b9815e, #ffb8035d);
+            background-size: 400%;
+            border-radius: 16px;
+            animation: glowing 20s linear infinite;
+        }
+
+        @keyframes glowing {
+            0% {
+                background-position: 0 0;
+            }
+
+            50% {
+                background-position: 400% 0;
+            }
+
+            100% {
+                background-position: 0 0;
+            }
+        }
+
+        .card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #ffb703;
+            position: relative;
+            display: inline-block;
+        }
+
+        .card h2:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: #ffb703;
+            border-radius: 3px;
+        }
+
+        .card .lead {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+
+        .card ol,
+        .card ul {
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .card ol:before,
+        .card ul:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 3px;
+            background: linear-gradient(to bottom, #ffb703, transparent);
+            border-radius: 3px;
+        }
+
+        .card ol li,
+        .card ul li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateX(-20px);
+            padding-left: 10px;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .card ol li:before,
+        .card ul li:before {
+            content: '→';
+            position: absolute;
+            left: -20px;
+            color: #ffb703;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        /* Hover effects */
+        .card:hover {
+            transform: translateY(-10px) scale(1.02) rotateX(0);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .card:hover ol li:before,
+        .card:hover ul li:before {
+            transform: translateX(5px);
+        }
+
+        /* Animation keyframes */
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(50px) rotateX(10deg);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+            }
+        }
+
+        @keyframes listFade {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Active animation */
+        .card.show {
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+            animation: fadeSlide 0.8s ease forwards, pulse 1s ease 0.8s forwards;
+        }
+
+        .card.show ol li,
+        .card.show ul li {
+            animation: listFade 0.6s ease forwards;
+        }
+
+        .card.show ol li:nth-child(1),
+        .card.show ul li:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .card.show ol li:nth-child(2),
+        .card.show ul li:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .card.show ol li:nth-child(3),
+        .card.show ul li:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .card.show ol li:nth-child(4),
+        .card.show ul li:nth-child(4) {
+            animation-delay: 0.5s;
+        }
+
+        .card.show ol li:nth-child(5),
+        .card.show ul li:nth-child(5) {
+            animation-delay: 0.6s;
+        }
+
+        .card.show ol li:nth-child(6),
+        .card.show ul li:nth-child(6) {
+            animation-delay: 0.7s;
+        }
+
+        .card.show ol li:nth-child(7),
+        .card.show ul li:nth-child(7) {
+            animation-delay: 0.8s;
+        }
+
+        .card.show ol li:nth-child(8),
+        .card.show ul li:nth-child(8) {
+            animation-delay: 0.9s;
+        }
+
+        .card.show ol li:nth-child(9),
+        .card.show ul li:nth-child(9) {
+            animation-delay: 1.0s;
+        }
+
+        .card.show ol li:nth-child(10),
+        .card.show ul li:nth-child(10) {
+            animation-delay: 1.1s;
+        }
+
+        /* ==== About Us ==== */
+        .about-us {
+            padding: 80px 20px;
+            background: #111;
+            color: #eee;
+            position: relative;
+        }
+
+        .about-us:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ffb703, transparent);
+        }
+
+        .about-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            align-items: center;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .about-text {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .about-text h2 {
+            font-size: 30px;
+            margin-bottom: 20px;
+            color: #ffb703;
+            position: relative;
+            display: inline-block;
+        }
+
+        .about-text h2:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: #ffb703;
+            border-radius: 4px;
+        }
+
+        .about-text p {
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: #181818;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffb703;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .about-image {
+            flex: 1;
+            position: relative;
+            min-width: 300px;
+        }
+
+        .about-image img {
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.5s ease;
+            width: 100%;
+        }
+
+        .about-image:hover img {
+            transform: scale(1.03);
+        }
+
+        .about-image:after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: -15px;
+            bottom: -15px;
+            border: 2px solid #ffb703;
+            border-radius: 10px;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* ==== FAQ ==== */
+        .faq-section {
+            padding: 80px 20px;
+            background: #0e0e0e;
+            position: relative;
+        }
+
+        .faq-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ffb703, transparent);
+        }
+
+        .section-title h2 {
+            font-size: 28px;
+            color: #ffb703;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .faq-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #181818;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .faq-item:hover {
+            border-color: #ffb703;
+            box-shadow: 0 5px 15px rgba(255, 183, 3, 0.1);
+        }
+
+        .faq-question {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question:after {
+            content: '+';
+            font-size: 20px;
+            color: #ffb703;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-question:after {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            color: #ccc;
+            font-size: 14px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 200px;
+            margin-top: 15px;
+        }
+
+        /* ==== Testimonials ==== */
+        .testimonials {
+            padding: 80px 20px;
+            background: #111;
+            position: relative;
+        }
+
+        .testimonials:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ffb703, transparent);
+        }
+
+        .testimonials .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .testimonials .section-title h3 {
+            font-size: 28px;
+            color: #ffb703;
+            margin-bottom: 10px;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .testimonial-card {
+            background: #181818;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .testimonial-content {
+            font-style: italic;
+            margin-bottom: 15px;
+            color: #ddd;
+            position: relative;
+        }
+
+        .testimonial-content:before,
+        .testimonial-content:after {
+            content: '"';
+            font-size: 40px;
+            color: #ffb703;
+            opacity: 0.3;
+            position: absolute;
+        }
+
+        .testimonial-content:before {
+            top: -15px;
+            left: -10px;
+        }
+
+        .testimonial-content:after {
+            bottom: -30px;
+            right: -10px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ffb703;
+            color: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: transform 0.3s ease;
+        }
+
+        .testimonial-card:hover .author-avatar {
+            transform: scale(1.1);
+        }
+
+        .author-details h4 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .author-details p {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        /* ==== Offline Section ==== */
+        .offline-section {
+            padding: 80px 20px;
+            background: #0e0e0e;
+            text-align: center;
+            color: #eee;
+            position: relative;
+        }
+
+        .offline-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ffb703, transparent);
+        }
+
+        .offline-icon {
+            font-size: 40px;
+            color: #ffb703;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        .offline-section h2 {
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .offline-section h2:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #ffb703;
+            border-radius: 3px;
+        }
+
+        .offline-section p {
+            max-width: 700px;
+            margin: 0 auto 25px;
+            color: #ccc;
+        }
+
+        .offline-section button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #ffb703;
+            color: #111;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: .3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .offline-section button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+
+        .offline-section button:hover:before {
+            left: 100%;
+        }
+
+        .offline-section button:hover {
+            background: #fb8500;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ==== Footer ==== */
+        footer {
+            padding: 50px 20px;
+            background: #0c0c0c;
+            color: #888;
+            position: relative;
+        }
+
+        footer:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ffb703, transparent);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: auto;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 15px;
+            color: #ffb703;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-column h3:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: #ffb703;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .footer-links li:hover {
+            transform: translateX(5px);
+        }
+
+        .footer-links a {
+            color: #aaa;
+            font-size: 14px;
+            transition: .3s;
+            display: inline-block;
+        }
+
+        .footer-links a:hover {
+            color: #ffb703;
+        }
+
+        .footer-social {
+            margin-top: 15px;
+        }
+
+        .footer-social a {
+            display: inline-block;
+            margin-right: 12px;
+            color: #aaa;
+            font-size: 18px;
+            transition: .3s;
+        }
+
+        .footer-social a:hover {
+            color: #ffb703;
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            border-top: 1px solid #222;
+            padding-top: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ==== Back to Top ==== */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ffb703;
+            color: #111;
+            padding: 10px 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: .3s;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            background: #fb8500;
+            transform: translateY(-3px);
+        }
+
+        /* ==== Responsive ==== */
+        @media (max-width: 1024px) {
+
+            /* Tablet styles */
+            .hero h1 {
+                font-size: 42px;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            .about-content {
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            /* Mobile and small tablet styles */
+            .header-container {
+                flex-direction: row;
+                padding: 15px 20px;
+            }
+
+            nav {
+                display: none;
+                width: 100%;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: #0c0c0c;
+                padding: 20px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            nav.active {
+                display: block;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .btn-signup {
+                display: none;
+            }
+
+            .hero {
+                height: 85vh;
+                min-height: 500px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero-buttons button {
+                width: 200px;
+            }
+
+            .about-content {
+                flex-direction: column;
+            }
+
+            .about-text,
+            .about-image {
+                flex: none;
+                width: 100%;
+            }
+
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            /* Small mobile styles */
+            .logo {
+                font-size: 18px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .hero p {
+                font-size: 14px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .card h2 {
+                font-size: 1.5rem;
+            }
+
+            .about-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-number {
+                font-size: 24px;
+            }
+
+            .testimonial-card {
+                padding: 20px;
+            }
+
+            .footer-column h3 {
+                font-size: 18px;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: gold;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .close {
+            color: yellow;
+            /* changed to yellow */
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: gold;
+            /* optional: hover effect */
+        }
+
+        /* Hamburger Button */
+        .hamburger {
+            display: none;
+            font-size: 26px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            right: 0;
+            /*  left ki jagah right */
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            overflow-x: hidden;
+            transition: 0.4s;
+            padding-top: 60px;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+            /*  shadow ulta kar diya */
+        }
+
+
+        .sidebar a {
+            padding: 12px 24px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #eee;
+            display: block;
+            transition: 0.3s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffb703;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Mobile View */
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+                /* hide normal nav */
+            }
+
+            .btn-signup {
+                display: none;
+                /* hide button */
+            }
+
+            .hamburger {
+                display: block;
+                /* show hamburger */
+            }
+        }
+
+        /* Device-specific optimizations */
+        @media (max-width: 1024px) and (orientation: landscape) {
+
+            /* Tablet landscape */
+            .hero {
+                height: 100vh;
+            }
+        }
+
+        @media (max-width: 768px) and (orientation: landscape) {
+
+            /* Mobile landscape */
+            .hero {
+                height: 120vh;
+            }
+
+            .header-container {
+                padding: 12px 20px;
+            }
+        }
+
+        /* High-resolution displays */
+        @media (-webkit-min-device-pixel-ratio: 2),
+        (min-resolution: 192dpi) {
+
+            /* High-res optimizations */
+            .hero {
+                background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-1.2.1&auto=format&fit=crop&w=2400&q=80') center/cover no-repeat;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            * {
+                background: transparent !important;
+                color: black !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+
+            header,
+            .hero-buttons,
+            .back-to-top,
+            footer:before {
+                display: none;
+            }
+
+            body {
+                font-size: 12pt;
+                line-height: 1.5;
+            }
+
+            .hero {
+                background: none !important;
+                height: auto;
+                color: black;
+            }
+
+            .card {
+                break-inside: avoid;
+                box-shadow: none !important;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <img src="{{ url_for('static', filename='logo-black.png') }}" class="logo-light" />
+                <img src="{{ url_for('static', filename='logo-white.png') }}" class="logo-dark" />
+                <h1>Presence Maker</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="{{ url_for('dashboard') }}">Teacher Panel</a></li>
+                    <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+                    {% if session.get('user_id') %}
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                    {% else %}
+                    <li><a href="{{ url_for('login_page') }}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="javascript:void(0)" class="closebtn" id="closeSidebar">&times;</a>
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#contact">Contact Us</a></li>
+            <li><a href="{{ url_for('dashboard') }}">Teacher Panel</a></li>
+            <li><a href="{{ url_for('admin_panel') }}">Admin Panel</a></li>
+            {% if session.get('user_id') %}
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            {% else %}
+            <li><a href="Collge_Login.html">Login</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Presence <span>Maker Portal</span> Rural Attendance</h1>
+            <p>A smart platform for teachers and principals to manage attendance efficiently, designed for Presence
+                Maker
+                institutions with limited connectivity.</p>
+            <div class="hero-buttons">
+                <button class="teacher-btn">Get Started</button>
+                <button class="principal-btn" id="watchDemoBtn">Watch Demo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Video -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 style="color: black;">Presence Maker</h2>
+            <video id="demoVideo" width="100%" height="auto" controls>
+                <source src="{{ url_for('static', filename='intro.mp4') }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <!-- Teacher Responsibilities -->
+    <section class="responsibilities">
+        <!-- Teacher Responsibilities -->
+        <div class="card animate" id="teacher">
+            <h2>👩‍🏫 Teacher — Responsibilities</h2>
+            <p class="lead">Main duties of a teacher in the school.</p>
+            <ul>
+                <li>Teach students and explain subjects clearly.</li>
+                <li>Take student attendance daily.</li>
+                <li>Prepare lesson plans and complete the syllabus on time.</li>
+                <li>Check notebooks, homework, and assignments.</li>
+                <li>Track and improve student performance.</li>
+                <li>Maintain discipline in the classroom.</li>
+                <li>Communicate with parents about student progress.</li>
+                <li>Conduct and evaluate examinations.</li>
+                <li>Provide extra support to weak students.</li>
+                <li>Participate in school activities like cultural programs and sports.</li>
+            </ul>
+        </div>
+
+        <!-- Principal Responsibilities -->
+        <div class="card animate" id="principal">
+            <h2>🎓 Principal — Responsibilities</h2>
+            <p class="lead">Main duties of the principal in the school.</p>
+            <ul>
+                <li>Manage and supervise the entire school.</li>
+                <li>Guide, monitor, and support teachers and staff.</li>
+                <li>Ensure rules, regulations, and policies are followed.</li>
+                <li>Conduct regular meetings with teachers.</li>
+                <li>Maintain student safety and discipline in school.</li>
+                <li>Report to the education department and government.</li>
+                <li>Handle school budget, resources, and financial management.</li>
+                <li>Communicate with parents about school progress.</li>
+                <li>Introduce and implement new educational programs.</li>
+                <li>Work on improving school performance and reputation.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section class="about-us" id="about">
+        <div class="about-content">
+            <div class="about-text">
+                <h2>About Presence Maker</h2>
+                <p>Presence Maker is a comprehensive school management system designed to simplify administrative tasks
+                    and
+                    enhance the educational experience for teachers, principals, and students alike.</p>
+                <p>Our mission is to empower institutions with technology that streamlines operations, improves
+                    communication,
+                    and enables data-driven decisions.</p>
+                <div class="about-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Schools Using Our Platform</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Customer Satisfaction</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Support Available</div>
+                    </div>
+                </div>
+            </div>
+            <div class="about-image">
+                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=1000"
+                    alt="Team collaboration in modern office">
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="section-title">
+            <h2>Frequently Asked Questions</h2>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">What user roles are supported?</div>
+            <div class="faq-answer">Teachers and principals with tailored dashboards.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">How does attendance tracking work?</div>
+            <div class="faq-answer">Teachers can mark attendance for their classes efficiently.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">Is the data secure?</div>
+            <div class="faq-answer">Yes, all data is stored securely with centralized management.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">Can principals manage schedules?</div>
+            <div class="faq-answer">Yes, principals have access to advanced scheduling and reporting features.</div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="section-title">
+            <h3>What Our Users Say</h3>
+            <p>Hear from educators who are using Presence Maker to transform their school management.</p>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-content">"Presence Maker has revolutionized how we track attendance and manage
+                    our
+                    school."</div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">JD</div>
+                    <div class="author-details">
+                        <h4>James Davidson</h4>
+                        <p>Principal, Greenwood High</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">"As a teacher, I appreciate how Presence Maker simplifies attendance
+                    tracking."</div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">SR</div>
+                    <div class="author-details">
+                        <h4>Sarah Roberts</h4>
+                        <p>Science Teacher, Lincoln Academy</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">"The analytics dashboard gives me insights I never had before."</div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">MJ</div>
+                    <div class="author-details">
+                        <h4>Michael Johnson</h4>
+                        <p>School Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Offline Functionality Section -->
+    <section class="offline-section">
+        <div class="offline-icon"><i class="fas fa-plug"></i></div>
+        <h2>Offline Functionality</h2>
+        <p>Our system works even without internet connectivity. Record attendance offline and automatically sync when
+            connection is available.</p>
+        <button>Learn More</button>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Presence Maker</h3>
+                <p>A comprehensive school management system designed to streamline tasks.</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Teacher Dashboard</a></li>
+                    <li><a href="#">Principal Dashboard</a></li>
+                    <li><a href="#">Student-Id</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Support Center</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <p>New Thinkers<br>Learning City, BH-108</p>
+                <p>Email: info@presencemaker.com<br>Phone: +91 994-5540-108</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <span id="year"></span> Presence Maker. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i></a>
+
+    <script>
+// Set current year in footer
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Animate cards on scroll
+    const cards = document.querySelectorAll('.card');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    cards.forEach(card => observer.observe(card));
+
+    // Back to top button
+    const backToTop = document.querySelector('.back-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 200) {
+        backToTop.classList.add('visible');
+      } else {
+        backToTop.classList.remove('visible');
+      }
+    });
+    backToTop.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // FAQ toggle functionality
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+      item.addEventListener('click', () => {
+        faqItems.forEach(otherItem => {
+          if (otherItem !== item && otherItem.classList.contains('active')) {
+            otherItem.classList.remove('active');
+          }
+        });
+        item.classList.toggle('active');
+      });
+    });
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          e.preventDefault();
+          targetElement.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+        // Sidebar toggle functionality
+        const hamburger = document.getElementById("hamburger");
+        const sidebar = document.getElementById("sidebar");
+        const closeSidebar = document.getElementById("closeSidebar");
+
+        hamburger.addEventListener("click", () => {
+            sidebar.style.width = "250px"; // right side se open
+        });
+
+        closeSidebar.addEventListener("click", () => {
+            sidebar.style.width = "0"; // sirf close button dabane par band hoga
+        });
+
+        //  Outside click se band nahi hoga, isliye ye code hata diya
+
+        // Menu toggle for desktop nav (with mobile rule)
+        const menuToggle = document.querySelector('.menu-toggle');
+        const desktopNav = document.getElementById('desktop-nav');
+
+        let mobileMenuOpened = false; // track mobile state
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    // Mobile: ek bar hi open hoga
+                    if (!mobileMenuOpened) {
+                        desktopNav.classList.add('active');
+                        mobileMenuOpened = true;
+                    }
+                } else {
+                    // Desktop: normal toggle
+                    desktopNav.classList.toggle('active');
+                }
+            });
+        }
+
+        //  Role-based redirect (Flask URLs)
+        function redirectBasedOnRole(page) {
+            const role = localStorage.getItem("role");
+
+            if (!role) {
+                alert("Please login first!");
+                window.location.href = "{{ url_for('login_page') }}"; // Flask route
+                return;
+            }
+
+            if (page === "teacher" && role === "teacher") {
+                window.location.href = "{{ url_for('dashboard') }}";
+            } else if (page === "admin" && role === "admin") {
+                window.location.href = "{{ url_for('admin_panel') }}";
+            } else {
+                alert("You are not authorized for this page!");
+            }
+        }
+
+        //  Override navbar/sidebar links
+        document.querySelectorAll('a[href="{{ url_for("dashboard") }}"]').forEach(el => {
+            el.addEventListener("click", (e) => {
+                e.preventDefault();
+                redirectBasedOnRole("teacher");
+            });
+        });
+
+        document.querySelectorAll('a[href="{{ url_for("admin_panel") }}"]').forEach(el => {
+            el.addEventListener("click", (e) => {
+                e.preventDefault();
+                redirectBasedOnRole("admin");
+            });
+        });
+
+        //  Video Modal functionality
+        const watchDemoBtn = document.getElementById("watchDemoBtn");
+        const videoModal = document.getElementById("videoModal");
+        const closeBtn = videoModal.querySelector(".close");
+        const demoVideo = document.getElementById("demoVideo");
+
+        // Open modal
+        watchDemoBtn.addEventListener("click", () => {
+            videoModal.style.display = "block";
+            demoVideo.play(); // autoplay when opened
+        });
+
+        // Close modal
+        function closeVideo() {
+            videoModal.style.display = "none";
+            demoVideo.pause();
+            demoVideo.currentTime = 0; // reset playback
+        }
+
+        closeBtn.addEventListener("click", closeVideo);
+
+        // Close if clicking outside
+        window.addEventListener("click", (e) => {
+            if (e.target === videoModal) {
+                closeVideo();
+            }
+        });
+
+        document.querySelectorAll('a[href="#logout"], a[href*="login"], a[href*="signup"]').forEach(el => {
+            el.classList.add("btn-signup");
+        });
+
+    </script>
+</body>
+
+</html>

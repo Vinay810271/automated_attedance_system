@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard | Presence Maker</title>
+  <!-- Tailwind (Local Build) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='fontawesome/css/all.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ---------- Dark Mode ---------- */
+    body.dark-mode { background:#1a1a1a; color:#fff; }
+    body.dark-mode table { background:#2d2d2d; color:#fff; }
+    body.dark-mode th { background:#d97706; color:#fff; }
+    body.dark-mode td { border-color:#555; }
+    body.dark-mode .qr-box { background:#2d2d2d; color:#fff; }
+    body.dark-mode .scanner-overlay { background:#d97706; }
+    body.dark-mode .action-btn,
+    body.dark-mode .submit-btn { background:#d97706; color:#fff; }
+    body.dark-mode nav, body.dark-mode #sidebar { background:#333; color:#fff; }
+    body.dark-mode nav a, body.dark-mode #sidebar a { color:#fff !important; }
+    body.dark-mode .lecture-card { background:#2d2d2d; color:#fff; }
+    body.dark-mode .attendance-table { background:#2d2d2d; color:#fff; }
+
+    /* ---------- Navbar ---------- */
+    nav {
+      background:#facc15;
+      border-bottom:2px solid #ca8a04;
+      position:fixed;top:0;left:0;width:100%;z-index:50;
+    }
+    nav .container {
+      max-width:1200px;
+      margin:auto;
+      padding:12px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    nav .logo-light, nav .logo-dark { height:32px; margin-right:8px; }
+    nav a {
+      color:#000;
+      font-weight:500;
+      margin-left:16px;
+      text-decoration:none;
+      font-size:14px;
+    }
+    nav .menu { display:flex; align-items:center; }
+    nav .theme-btn {
+      margin-left:16px;
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      height:22px;
+      width:42px;
+      border-radius:9999px;
+      background:#fde047;
+    }
+    nav .theme-btn span {
+      width:16px;height:16px;
+      background:#fff;
+      border-radius:50%;
+      transform:translateX(0);
+      transition:transform 0.3s;
+    }
+    nav button#toggleSidebar {
+      font-size:22px;
+      background:none;
+      border:none;
+      display:none;
+    }
+    @media(max-width:768px){
+      nav .menu { display:none; }
+      nav button#toggleSidebar { display:block; }
+    }
+
+    /* ---------- Sidebar ---------- */
+    #sidebar {
+      position:fixed;top:0;right:0;height:100%;width:260px;
+      background:#facc15;color:#000;
+      transform:translateX(100%);
+      transition:transform 0.5s;
+      z-index:50;
+      box-shadow:-2px 0 6px rgba(0,0,0,0.2);
+    }
+    #sidebar .header {
+      display:flex;justify-content:space-between;align-items:center;
+      padding:14px;border-bottom:1px solid #eab308;
+    }
+    #sidebar .profile {
+      text-align:center;
+      padding:20px 14px;
+      border-bottom:1px solid #eab308;
+    }
+    #sidebar .profile img {
+      width:70px;height:70px;border-radius:50%;
+      border:2px solid #333;
+    }
+    #sidebar nav { display:flex;flex-direction:column;padding:14px; }
+    #sidebar nav a {
+      color:#000;
+      text-decoration:none;
+      margin-bottom:12px;
+      font-weight:500;
+      font-size:14px;
+    }
+    #sidebar .footer {
+      border-top:1px solid #eab308;
+      padding:14px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    #sidebar .theme-btn {
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      height:22px;
+      width:42px;
+      border-radius:9999px;
+      background:#fde047;
+    }
+    #sidebar .theme-btn span {
+      width:16px;height:16px;
+      background:#fff;
+      border-radius:50%;
+      transition:transform 0.3s;
+    }
+    #sidebarOverlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:40;display:none; }
+    
+    /* ---------- New Styles for Dashboard ---------- */
+    .lecture-card {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .lecture-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-upcoming {
+      background-color: #FEF3C7;
+      color: #92400E;
+    }
+    .status-ongoing {
+      background-color: #D1FAE5;
+      color: #065F46;
+    }
+    .status-completed {
+      background-color: #E5E7EB;
+      color: #374151;
+    }
+    .attendance-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .attendance-table th, .attendance-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #E5E7EB;
+    }
+    .attendance-table th {
+      background-color: #F9FAFB;
+      font-weight: 500;
+    }
+    .attendance-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .present {
+      background-color: #D1FAE5;
+      color: #065F46;
+    }
+    .absent {
+      background-color: #FEE2E2;
+      color: #B91C1C;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #E5E7EB;
+      margin-bottom: 16px;
+    }
+    .tab {
+      padding: 8px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .tab.active {
+      border-bottom-color: #F59E0B;
+      color: #F59E0B;
+      font-weight: 500;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .refresh-btn {
+      background: #F59E0B;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .refresh-btn:hover {
+      background: #D97706;
+    }
+    
+    /* Offline indicator */
+    .offline-indicator {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ef4444;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .online-indicator {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #10b981;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sync-pending {
+      background: #f59e0b !important;
+    }
+    
+    /* Data saving indicator */
+    .data-saving {
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      background: #3b82f6;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+
+  <nav>
+    <div class="container">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img src="{{ url_for('static', filename='logo-black.png') }}" class="logo-light" />
+        <h1 style="font-size:18px;font-weight:bold;letter-spacing:2px;">Teacher Dashboard</h1>
+      </div>
+      <div class="menu">
+          <a href="{{ url_for('idcard') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+          <i class="fas fa-home"></i> Id-Card
+        </a>
+        <a href="http://127.0.0.1:5000/dashboard"><i class="fas fa-chalkboard-teacher"></i> Dashboard</a>
+        <a href="http://127.0.0.1:5000/attendance"><i class="fas fa-clipboard-check"></i> Mark Attendance</a>
+        <a href="http://127.0.0.1:5000/attendance_view" target="_blank"><i class="fas fa-eye"></i> View Attendance</a>
+       <a href="{{ url_for('logout') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+        <button id="navThemeToggle" class="theme-btn"><span id="navToggleThumb"></span></button>
+      </div>
+      <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
+    </div>
+  </nav> 
+
+  <!-- Sidebar -->
+   <div id="sidebar">
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <img src="{{ url_for('static', filename='logo-black.png') }}" class="logo-light" />
+        <img src="{{ url_for('static', filename='logo-white.png') }}" class="logo-dark" />
+        <span style="font-size:16px;font-weight:600;">Menu</span>
+      </div>
+      <button id="closeSidebar" style="font-size:28px;background:none;border:none;">&times;</button>
+    </div>
+    <div class="profile">
+      <img src="https://via.placeholder.com/100" />
+      <h3 style="margin-top:12px;font-size:18px;font-weight:600;">Mr. Niraj Kumar</h3>
+      <p style="font-size:13px;">Computer Science Dept.</p>
+    </div>
+    <nav>
+        <a href="{{ url_for('idcard') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+          <i class="fas fa-home"></i> Id-Card
+        </a>
+        <a href="http://127.0.0.1:5000/dashboard"><i class="fas fa-chalkboard-teacher"></i> Dashboard</a>
+      <a href="http://127.0.0.1:5000/attendance"><i class="fas fa-clipboard-check"></i> Attendance</a>
+      <a href="http://127.0.0.1:5000/attendance_view" target="_blank"><i class="fas fa-eye"></i> View Attendance</a>
+     <a href="{{ url_for('logout') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+    </nav>
+    <div class="footer">
+      <span style="font-size:12px;">Dark Mode</span>
+      <button id="themeToggleBtn" class="theme-btn"><span id="toggleThumb"></span></button>
+    </div>
+  </div>
+  <div id="sidebarOverlay"></div>
+   
+  <!-- Status Indicators -->
+  <div class="offline-indicator" id="offlineIndicator">
+    <i class="fas fa-wifi"></i> You are currently offline
+  </div>
+  
+  <div class="online-indicator" id="onlineIndicator">
+    <i class="fas fa-wifi"></i> Back online
+  </div>
+  
+  <div class="data-saving" id="dataSaving">
+    <i class="fas fa-sync-alt"></i> Saving data locally
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mx-auto mt-20 p-6">
+    <h1 class="text-2xl font-bold mb-6">Welcome, {{ teacher.name }}</h1>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold">Classes</h3>
+          <i class="fas fa-chalkboard text-yellow-500"></i>
+        </div>
+        <p class="text-3xl font-bold mt-2" id="classesCount">{{ summary.classes }}</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold">Students</h3>
+          <i class="fas fa-user-graduate text-yellow-500"></i>
+        </div>
+        <p class="text-3xl font-bold mt-2" id="studentsCount">{{ summary.students }}</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold">Attendance</h3>
+          <i class="fas fa-clipboard-check text-yellow-500"></i>
+        </div>
+        <p class="text-3xl font-bold mt-2" id="attendancePercent">{{ summary.attendance }}%</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold">Subjects</h3>
+          <i class="fas fa-book text-yellow-500"></i>
+        </div>
+        <p class="text-3xl font-bold mt-2" id="subjectsCount">{{ summary.subjects }}</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold">Tasks</h3>
+          <i class="fas fa-tasks text-yellow-500"></i>
+        </div>
+        <p class="text-3xl font-bold mt-2" id="tasksCount">{{ summary.tasks }}</p>
+      </div>
+    </div>
+
+    <!-- Today's Lectures Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Today's Lectures</h2>
+        <div>
+          <button class="refresh-btn" id="refreshLectures">
+            <i class="fas fa-sync-alt"></i> Refresh
+          </button>
+          <button class="refresh-btn bg-blue-500 ml-2" id="saveOfflineBtn">
+            <i class="fas fa-download"></i> Save Offline
+          </button>
+        </div>
+      </div>
+      <div id="lecturesContainer">
+        {% if lectures %}
+          {% for lecture in lectures %}
+          <div class="lecture-card dark:lecture-card">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="font-semibold">{{ lecture.subject }} - {{ lecture.class }}</h3>
+                <p class="text-gray-600 dark:text-gray-400">{{ lecture.time }}</p>
+              </div>
+              <span class="lecture-status status-{{ lecture.status }}">
+                {{ lecture.status|capitalize }}
+              </span>
+            </div>
+            <div class="mt-4">
+              <p><strong>Room:</strong> {{ lecture.room }}</p>
+              <p><strong>Students Expected:</strong> {{ lecture.students_expected }}</p>
+              {% if lecture.status == 'completed' %}
+              <p><strong>Attendance Marked:</strong> {{ lecture.attendance_marked }}/{{ lecture.students_expected }}</p>
+              {% endif %}
+            </div>
+            {% if lecture.status == 'ongoing' %}
+            <div class="mt-4">
+              <a href="http://127.0.0.1:5000/attendance?class_id={{ lecture.class_id }}&subject_id={{ lecture.subject_id }}" 
+                 class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded inline-block">
+                Take Attendance Now
+              </a>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-center py-4 text-gray-500">No lectures scheduled for today.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Attendance Overview Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div class="tabs">
+        <div class="tab active" data-tab="today">Today's Attendance</div>
+        <div class="tab" data-tab="previous">Previous Attendance</div>
+        <div class="tab" data-tab="offline">Offline Records <span id="offlineRecordsCount" class="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-1">0</span></div>
+      </div>
+
+      <div class="tab-content active" id="todayTab">
+        <div class="overflow-x-auto">
+          <table class="attendance-table dark:attendance-table">
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Subject</th>
+                <th>Total Students</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>Percentage</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="todayAttendanceBody">
+              {% if today_attendance %}
+                {% for record in today_attendance %}
+                <tr>
+                  <td>{{ record.class }}</td>
+                  <td>{{ record.subject }}</td>
+                  <td>{{ record.total_students }}</td>
+                  <td>{{ record.present }}</td>
+                  <td>{{ record.absent }}</td>
+                  <td>{{ record.percentage }}%</td>
+                  <td>
+                    <a href="http://127.0.0.1:5000/attendance_view?class_id={{ record.class_id }}&subject_id={{ record.subject_id }}&date={{ record.date }}" 
+                       class="text-blue-500 hover:text-blue-700">
+                      View Details
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="7" class="text-center py-4">No attendance records for today yet.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" id="previousTab">
+        <div class="mb-4">
+          <label for="dateFilter" class="block text-sm font-medium mb-2">Select Date:</label>
+          <input type="date" id="dateFilter" class="border rounded p-2 dark:bg-gray-700 dark:border-gray-600">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="attendance-table dark:attendance-table">
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Subject</th>
+                <th>Date</th>
+                <th>Total Students</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>Percentage</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="previousAttendanceBody">
+              {% if previous_attendance %}
+                {% for record in previous_attendance %}
+                <tr>
+                  <td>{{ record.class }}</td>
+                  <td>{{ record.subject }}</td>
+                  <td>{{ record.date }}</td>
+                  <td>{{ record.total_students }}</td>
+                  <td>{{ record.present }}</td>
+                  <td>{{ record.absent }}</td>
+                  <td>{{ record.percentage }}%</td>
+                  <td>
+                    <a href="http://127.0.0.1:5000/attendance_view?class_id={{ record.class_id }}&subject_id={{ record.subject_id }}&date={{ record.date }}" 
+                       class="text-blue-500 hover:text-blue-700">
+                      View Details
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="8" class="text-center py-4">No previous attendance records found.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="offlineTab">
+        <div class="mb-4 flex justify-between items-center">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Records saved locally when offline</p>
+          <button id="syncOfflineData" class="refresh-btn bg-green-600">
+            <i class="fas fa-cloud-upload-alt"></i> Sync Now
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="attendance-table dark:attendance-table">
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Subject</th>
+                <th>Date</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="offlineAttendanceBody">
+              <!-- Offline records will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other dashboard sections (Notifications, Activities, Subjects) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+      <!-- Notifications -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <h3 class="font-semibold border-b pb-2 mb-4">Notifications</h3>
+        <ul id="notificationsList">
+          {% for n in notifications %}
+          <li class="flex justify-between items-center border-b py-2">
+            <span>{{ n.msg }}</span>
+            <small class="text-gray-500">{{ n.time }}</small>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Activities -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <h3 class="font-semibold border-b pb-2 mb-4">Recent Activities</h3>
+        <ul id="activitiesList">
+          {% for a in activities %}
+          <li class="flex justify-between items-center border-b py-2">
+            <span>{{ a.msg }}</span>
+            <small class="text-gray-500">{{ a.time }}</small>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Subjects / Records -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <h3 class="font-semibold border-b pb-2 mb-4">Subjects & Records</h3>
+        <table class="min-w-full text-left">
+          <thead class="bg-gray-100 dark:bg-gray-700">
+            <tr>
+              <th class="p-2">Subject</th>
+              <th class="p-2">Class</th>
+              <th class="p-2">Students</th>
+              <th class="p-2">Attendance</th>
+            </tr>
+          </thead>
+          <tbody id="subjectsTableBody">
+            {% for r in records %}
+            <tr class="border-b dark:border-gray-700">
+              <td class="p-2">{{ r.subject }}</td>
+              <td class="p-2">{{ r.class }}</td>
+              <td class="p-2">{{ r.students }}</td>
+              <td class="p-2">{{ r.attendance }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared JS -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    // ========== OFFLINE FUNCTIONALITY ==========
+    
+    // Check online status
+    function updateOnlineStatus() {
+      if (navigator.onLine) {
+        document.getElementById('onlineIndicator').style.display = 'block';
+        document.getElementById('offlineIndicator').style.display = 'none';
+        
+        // Hide online indicator after 3 seconds
+        setTimeout(() => {
+          document.getElementById('onlineIndicator').style.display = 'none';
+        }, 3000);
+        
+        // Try to sync any pending data
+        syncPendingData();
+      } else {
+        document.getElementById('offlineIndicator').style.display = 'block';
+        document.getElementById('onlineIndicator').style.display = 'none';
+      }
+    }
+    
+    // Initial check
+    updateOnlineStatus();
+    
+    // Listen for online/offline events
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    // ========== DATA STORAGE FUNCTIONS ==========
+    
+    // Save data to local storage
+    function saveDataToLocal(key, data) {
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+        return true;
+      } catch (e) {
+        console.error('Error saving to local storage:', e);
+        return false;
+      }
+    }
+    
+    // Get data from local storage
+    function getDataFromLocal(key) {
+      try {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : null;
+      } catch (e) {
+        console.error('Error reading from local storage:', e);
+        return null;
+      }
+    }
+    
+    // Save dashboard data for offline use
+    function saveDashboardData() {
+      const dashboardData = {
+        summary: {
+          classes: document.getElementById('classesCount').innerText,
+          students: document.getElementById('studentsCount').innerText,
+          attendance: document.getElementById('attendancePercent').innerText,
+          subjects: document.getElementById('subjectsCount').innerText,
+          tasks: document.getElementById('tasksCount').innerText
+        },
+        lectures: document.getElementById('lecturesContainer').innerHTML,
+        todayAttendance: document.getElementById('todayAttendanceBody').innerHTML,
+        previousAttendance: document.getElementById('previousAttendanceBody').innerHTML,
+        notifications: document.getElementById('notificationsList').innerHTML,
+        activities: document.getElementById('activitiesList').innerHTML,
+        subjects: document.getElementById('subjectsTableBody').innerHTML,
+        timestamp: new Date().getTime()
+      };
+      
+      const success = saveDataToLocal('teacherDashboard', dashboardData);
+      
+      if (success) {
+        // Show data saved indicator
+        const indicator = document.getElementById('dataSaving');
+        indicator.style.display = 'block';
+        setTimeout(() => {
+          indicator.style.display = 'none';
+        }, 2000);
+      }
+      
+      return success;
+    }
+    
+    // Load dashboard data from local storage
+    function loadDashboardData() {
+      const data = getDataFromLocal('teacherDashboard');
+      if (data) {
+        // Update dashboard with saved data
+        document.getElementById('classesCount').innerText = data.summary.classes;
+        document.getElementById('studentsCount').innerText = data.summary.students;
+        document.getElementById('attendancePercent').innerText = data.summary.attendance;
+        document.getElementById('subjectsCount').innerText = data.summary.subjects;
+        document.getElementById('tasksCount').innerText = data.summary.tasks;
+        
+        document.getElementById('lecturesContainer').innerHTML = data.lectures;
+        document.getElementById('todayAttendanceBody').innerHTML = data.todayAttendance;
+        document.getElementById('previousAttendanceBody').innerHTML = data.previousAttendance;
+        document.getElementById('notificationsList').innerHTML = data.notifications;
+        document.getElementById('activitiesList').innerHTML = data.activities;
+        document.getElementById('subjectsTableBody').innerHTML = data.subjects;
+        
+        // Update last sync time
+        const lastUpdated = new Date(data.timestamp);
+        console.log('Dashboard data loaded from local storage. Last updated: ' + lastUpdated.toLocaleString());
+      }
+    }
+    
+    // ========== OFFLINE ATTENDANCE FUNCTIONS ==========
+    
+    // Save attendance record when offline
+    function saveOfflineAttendance(attendanceData) {
+      // Get existing offline records or initialize empty array
+      const offlineRecords = getDataFromLocal('offlineAttendance') || [];
+      
+      // Add new record with pending status
+      attendanceData.status = 'pending';
+      attendanceData.id = new Date().getTime(); // Unique ID based on timestamp
+      offlineRecords.push(attendanceData);
+      
+      // Save back to local storage
+      const success = saveDataToLocal('offlineAttendance', offlineRecords);
+      
+      if (success) {
+        updateOfflineRecordsDisplay();
+        return true;
+      }
+      return false;
+    }
+    
+    // Update the display of offline records
+    function updateOfflineRecordsDisplay() {
+      const offlineRecords = getDataFromLocal('offlineAttendance') || [];
+      const tbody = document.getElementById('offlineAttendanceBody');
+      const countBadge = document.getElementById('offlineRecordsCount');
+      
+      // Update count badge
+      countBadge.innerText = offlineRecords.length;
+      
+      // Clear current display
+      tbody.innerHTML = '';
+      
+      // Add records to table
+      if (offlineRecords.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4">No offline records</td></tr>';
+        return;
+      }
+      
+      offlineRecords.forEach(record => {
+        const row = document.createElement('tr');
+        
+        // Add sync status class
+        if (record.status === 'pending') {
+          row.classList.add('sync-pending');
+        }
+        
+        row.innerHTML = `
+          <td>${record.class}</td>
+          <td>${record.subject}</td>
+          <td>${record.date}</td>
+          <td>${record.present}</td>
+          <td>${record.absent}</td>
+          <td><span class="attendance-badge ${record.status === 'pending' ? 'absent' : 'present'}">${record.status}</span></td>
+          <td>
+            <button class="text-red-500 hover:text-red-700 delete-record" data-id="${record.id}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+      
+      // Add event listeners to delete buttons
+      document.querySelectorAll('.delete-record').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = parseInt(this.getAttribute('data-id'));
+          deleteOfflineRecord(id);
+        });
+      });
+    }
+    
+    // Delete an offline record
+    function deleteOfflineRecord(id) {
+      let offlineRecords = getDataFromLocal('offlineAttendance') || [];
+      offlineRecords = offlineRecords.filter(record => record.id !== id);
+      saveDataToLocal('offlineAttendance', offlineRecords);
+      updateOfflineRecordsDisplay();
+    }
+    
+    // Sync pending data when online
+    function syncPendingData() {
+      const offlineRecords = getDataFromLocal('offlineAttendance') || [];
+      const pendingRecords = offlineRecords.filter(record => record.status === 'pending');
+      
+      if (pendingRecords.length === 0) return;
+      
+      // Show syncing indicator
+      const syncBtn = document.getElementById('syncOfflineData');
+      const originalText = syncBtn.innerHTML;
+      syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+      syncBtn.disabled = true;
+      
+      // Simulate API calls for each pending record
+      let syncedCount = 0;
+      
+      pendingRecords.forEach(record => {
+        // In a real application, you would make an API call here
+        setTimeout(() => {
+          // Mark as synced (in a real app, this would happen after successful API response)
+          record.status = 'synced';
+          syncedCount++;
+          
+          // Update local storage
+          saveDataToLocal('offlineAttendance', offlineRecords);
+          
+          // Update UI when all records are processed
+          if (syncedCount === pendingRecords.length) {
+            updateOfflineRecordsDisplay();
+            syncBtn.innerHTML = originalText;
+            syncBtn.disabled = false;
+            
+            // Show success message
+            alert(`Successfully synced ${syncedCount} attendance records!`);
+          }
+        }, 1000); // Simulate network delay
+      });
+    }
+    
+    // ========== EVENT LISTENERS ==========
+    
+    // Save offline button
+    document.getElementById('saveOfflineBtn').addEventListener('click', function() {
+      if (saveDashboardData()) {
+        alert('Dashboard data saved for offline use!');
+      } else {
+        alert('Error saving data. Please try again.');
+      }
+    });
+    
+    // Sync offline data button
+    document.getElementById('syncOfflineData').addEventListener('click', syncPendingData);
+    
+    // ========== INITIALIZATION ==========
+    
+    // Sidebar functionality
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    document.getElementById('toggleSidebar').addEventListener('click', () => {
+      sidebar.style.transform = 'translateX(0)';
+      overlay.style.display = 'block';
+    });
+    document.getElementById('closeSidebar').addEventListener('click', () => {
+      sidebar.style.transform = 'translateX(100%)';
+      overlay.style.display = 'none';
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.style.transform = 'translateX(100%)';
+      overlay.style.display = 'none';
+    });
+
+    // Dark mode functionality
+    let darkMode = localStorage.getItem('darkMode') === 'true';
+    function toggleDarkMode() {
+      darkMode = !darkMode;
+      document.body.classList.toggle('dark-mode', darkMode);
+      document.getElementById('toggleThumb').style.transform = darkMode ? 'translateX(20px)' : 'translateX(0)';
+      document.getElementById('navToggleThumb').style.transform = darkMode ? 'translateX(20px)' : 'translateX(0)';
+      localStorage.setItem('darkMode', darkMode);
+    }
+    document.getElementById('themeToggleBtn').addEventListener('click', toggleDarkMode);
+    document.getElementById('navThemeToggle').addEventListener('click', toggleDarkMode);
+    
+    // Apply dark mode on load if enabled
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+      document.getElementById('toggleThumb').style.transform = 'translateX(20px)';
+      document.getElementById('navToggleThumb').style.transform = 'translateX(20px)';
+    }
+
+    // Tab functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+      });
+    });
+
+    // Refresh lectures functionality
+    document.getElementById('refreshLectures').addEventListener('click', async () => {
+      const btn = document.getElementById('refreshLectures');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+      btn.disabled = true;
+      
+      try {
+        // In a real implementation, this would fetch from your backend
+        const response = await fetch('/api/refresh-lectures');
+        const data = await response.json();
+        
+        document.getElementById('lecturesContainer').innerHTML = data.html || '<p class="text-center py-4 text-gray-500">No lectures scheduled for today.</p>';
+        
+        // Save the updated data for offline use
+        saveDashboardData();
+      } catch (error) {
+        console.error('Error refreshing lectures:', error);
+        
+        // If offline, load from local storage
+        if (!navigator.onLine) {
+          loadDashboardData();
+          alert('Offline mode: Using last saved data');
+        } else {
+          alert('Failed to refresh lectures. Please try again.');
+        }
+      } finally {
+        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+        btn.disabled = false;
+      }
+    });
+
+    // Date filter for previous attendance
+    document.getElementById('dateFilter').addEventListener('change', async (e) => {
+      const date = e.target.value;
+      if (!date) return;
+      
+      try {
+        // Fetch attendance data for the selected date
+        const response = await fetch(`/api/attendance?date=${date}`);
+        const data = await response.json();
+        
+        const tbody = document.getElementById('previousAttendanceBody');
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No attendance records found for this date.</td></tr>';
+        } else {
+          tbody.innerHTML = data.map(record => `
+            <tr>
+              <td>${record.class}</td>
+              <td>${record.subject}</td>
+              <td>${record.date}</td>
+              <td>${record.total_students}</td>
+              <td>${record.present}</td>
+              <td>${record.absent}</td>
+              <td>${record.percentage}%</td>
+              <td>
+                <a href="http://127.0.0.1:5000/attendance_view?class_id=${record.class_id}&subject_id=${record.subject_id}&date=${record.date}" 
+                   class="text-blue-500 hover:text-blue-700">
+                  View Details
+                </a>
+              </td>
+            </tr>
+          `).join('');
+        }
+        
+        // Save the updated data for offline use
+        saveDashboardData();
+      } catch (error) {
+        console.error('Error filtering attendance:', error);
+        alert('Failed to filter attendance. Please try again.');
+      }
+    });
+
+    // Load offline records on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      updateOfflineRecordsDisplay();
+      
+      // If offline, load data from local storage
+      if (!navigator.onLine) {
+        loadDashboardData();
+      }
+    });
+
+    // Service Worker Registration
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
+        .then(() => console.log("SW Registered"))
+        .catch(err => console.error("SW Failed:", err));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Attendance - Presence Maker (QR Improved)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    /* ---------- Reset & Base ---------- */
+    * {margin:0;padding:0;box-sizing:border-box;font-family: Arial, sans-serif;}
+    body {
+      background: #fefce8;
+      color: #000;
+    }
+
+    /* ---------- Dark Mode ---------- */
+    body.dark-mode { background:#1a1a1a; color:#fff; }
+    body.dark-mode table { background:#2d2d2d; color:#fff; }
+    body.dark-mode th { background:#d97706; color:#fff; }
+    body.dark-mode td { border-color:#555; }
+    body.dark-mode .qr-box { background:#2d2d2d; color:#fff; }
+    body.dark-mode .scanner-overlay { background:#d97706; }
+    body.dark-mode .action-btn,
+    body.dark-mode .submit-btn { background:#d97706; color:#fff; }
+    body.dark-mode nav, body.dark-mode #sidebar { background:#333; color:#fff; }
+    body.dark-mode nav a, body.dark-mode #sidebar a { color:#fff !important; }
+
+    /* ---------- Navbar ---------- */
+    nav {
+      background:#facc15;
+      border-bottom:2px solid #ca8a04;
+      position:fixed;top:0;left:0;width:100%;z-index:50;
+    }
+    nav .container {
+      max-width:1200px;
+      margin:auto;
+      padding:12px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    nav .logo-light, nav .logo-dark { height:36px; margin-right:8px; }
+    nav a {
+      color:#000;
+      font-weight:500;
+      margin-left:16px;
+      text-decoration:none;
+      font-size:15px;
+    }
+    nav .menu { display:flex; align-items:center; }
+    nav .theme-btn {
+      margin-left:16px;
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      height:24px;
+      width:44px;
+      border-radius:9999px;
+      background:#fde047;
+    }
+    nav .theme-btn span {
+      width:16px;height:16px;
+      background:#fff;
+      border-radius:50%;
+      transform:translateX(0);
+      transition:transform 0.3s;
+    }
+    nav button#toggleSidebar {
+      font-size:22px;
+      background:none;
+      border:none;
+      display:none;
+    }
+    @media(max-width:768px){
+      nav .menu { display:none; }
+      nav button#toggleSidebar { display:block; }
+    }
+
+    /* ---------- Sidebar ---------- */
+    #sidebar {
+      position:fixed;top:0;right:0;height:100%;width:280px;
+      background:#facc15;color:#000;
+      transform:translateX(100%);
+      transition:transform 0.5s;
+      z-index:50;
+      box-shadow:-2px 0 6px rgba(0,0,0,0.2);
+    }
+    #sidebar .header {
+      display:flex;justify-content:space-between;align-items:center;
+      padding:16px;border-bottom:1px solid #eab308;
+    }
+    #sidebar .profile {
+      text-align:center;
+      padding:24px 16px;
+      border-bottom:1px solid #eab308;
+    }
+    #sidebar .profile img {
+      width:80px;height:80px;border-radius:50%;
+      border:2px solid #333;
+    }
+    #sidebar nav { display:flex;flex-direction:column;padding:16px; }
+    #sidebar nav a {
+      color:#000;
+      text-decoration:none;
+      margin-bottom:12px;
+      font-weight:500;
+    }
+    #sidebar .footer {
+      border-top:1px solid #eab308;
+      padding:16px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    #sidebar .theme-btn {
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      height:24px;
+      width:44px;
+      border-radius:9999px;
+      background:#fde047;
+    }
+    #sidebar .theme-btn span {
+      width:16px;height:16px;
+      background:#fff;
+      border-radius:50%;
+      transition:transform 0.3s;
+    }
+    #sidebarOverlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:40;display:none; }
+
+    /* ---------- Main Section ---------- */
+    .main {
+      max-width:1200px;
+      margin:80px auto 0 auto;
+      padding:16px;
+    }
+    .filters {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    @media(min-width:640px){
+      .filters {flex-direction:row;justify-content:space-between;align-items:center;}
+    }
+    .filters select {
+      padding:8px;
+      border-radius:6px;
+      border:1px solid #d97706;
+      background:#fff;
+      color:#000;
+      font-weight:500;
+      min-width:120px;
+      margin-right:8px;
+    }
+    body.dark-mode .filters select {
+      background:#fff;color:#000;border:1px solid #facc15;
+    }
+    .filters button {
+      padding:8px 16px;
+      border:none;
+      border-radius:6px;
+      font-weight:500;
+      cursor:pointer;
+    }
+    .filters button.bg-yellow { background:#eab308; }
+    .filters button.bg-yellow:hover { background:#ca8a04; color:#fff; }
+
+    /* ---------- Table ---------- */
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    th, td { padding:10px; border:1px solid #ccc; text-align:center; }
+    th { background:#facc15;color:#000; }
+
+    /* ---------- QR Overlay ---------- */
+    .qr-overlay {
+      display:none;
+      position:fixed;inset:0;
+      background:rgba(0,0,0,0.6);
+      justify-content:center;align-items:center;
+      z-index:50;
+    }
+    .qr-box {
+      background:#fff;
+      padding:24px;
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      width:90%;max-width:420px;
+      text-align:center;
+      position:relative;
+    }
+    .scanner-view {
+      width:100%;height:220px;
+      background:#fef9c3;
+      margin-bottom:12px;
+      position:relative;
+      overflow:hidden;
+      border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .scanner-overlay {
+      position:absolute;left:0;top:0;
+      width:100%;height:4px;
+      background:#eab308;
+      animation:scan 3s linear infinite;
+    }
+    @keyframes scan {
+      0%{top:0;} 100%{top:100%;}
+    }
+    .qr-box button { margin-top:10px;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:500; }
+    .qr-box button.primary { background:#eab308; }
+    .qr-box button.close { background:#555;color:#fff; }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position:fixed;left:50%;transform:translateX(-50%);bottom:24px;
+      background:rgba(0,0,0,0.8);color:#fff;padding:10px 16px;border-radius:8px;z-index:60;opacity:0;transition:opacity .25s,transform .25s;
+      display:flex;gap:8px;align-items:center;font-weight:600;
+    }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .toast.success { background:rgba(16,185,129,0.95); }
+    .toast.warn { background:rgba(234,179,8,0.95); }
+
+    /* ---------- Logo Handling ---------- */
+    .logo-light {display:inline;height:32px;object-fit:contain;}
+    .logo-dark {display:none;height:32px;object-fit:contain;}
+    body.dark-mode .logo-light {display:none;} body.dark-mode .logo-dark {display:inline;}
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav>
+    <div class="container">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img src="{{ url_for('static', filename='logo-black.png') }}" class="logo-light" />
+        <img src="{{ url_for('static', filename='logo-white.png') }}" class="logo-dark" />
+        <h1 style="font-size:18px;font-weight:bold;letter-spacing:2px;">Attendance</h1>
+      </div>
+      <div class="menu">
+        <a href="http://127.0.0.1:5000/dashboard"><i class="fas fa-chalkboard-teacher"></i> Dashboard</a>
+        <a href="http://127.0.0.1:5000/attendance"><i class="fas fa-clipboard-check"></i> Mark Attendance</a>
+        <a href="http://127.0.0.1:5000/attendance_view" target="_blank"><i class="fas fa-eye"></i> View Attendance</a>
+       <a href="{{ url_for('logout') }}" class="flex items-center gap-2 p-2 rounded hover:bg-yellow-100 dark:hover:bg-gray-700">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+        <button id="navThemeToggle" class="theme-btn"><span id="navToggleThumb"></span></button>
+      </div>
+      <button id="toggleSidebar"><i class="fas fa-bars"></i></button>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <img src="{{ url_for('static', filename='logo-black.png') }}" class="logo-light" />
+        <img src="{{ url_for('static', filename='logo-white.png') }}" class="logo-dark" />
+        <span style="font-size:16px;font-weight:600;">Menu</span>
+      </div>
+      <button id="closeSidebar" style="font-size:28px;background:none;border:none;">&times;</button>
+    </div>
+    <div class="profile">
+      <img src="https://via.placeholder.com/100" />
+      <h3 style="margin-top:12px;font-size:18px;font-weight:600;">Mr. Niraj Kumar</h3>
+      <p style="font-size:13px;">Computer Science Dept.</p>
+    </div>
+    <nav>
+      <a href="#dashboard"><i class="fas fa-chalkboard-teacher"></i> Dashboard</a>
+      <a href="http://127.0.0.1:5000/attendance"><i class="fas fa-clipboard-check"></i> Mark Attendance</a>
+      <a href="http://127.0.0.1:5000/attendance_view" target="_blank"><i class="fas fa-eye"></i> View Attendance</a>
+      <a href="#logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+    <div class="footer">
+      <span style="font-size:13px;">Dark Mode</span>
+      <button id="themeToggleBtn" class="theme-btn"><span id="toggleThumb"></span></button>
+    </div>
+  </div>
+  <div id="sidebarOverlay"></div>
+
+  <!-- Main Section -->
+  <div class="main">
+    <div class="filters">
+      <div>
+        <select id="classFilter">
+          <option value="all">All Classes</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        <select id="subjectFilter">
+          <option value="all">All Subjects</option>
+          <option value="math">Math</option>
+          <option value="science">Science</option>
+          <option value="Hindi">Hindi</option>
+          <option value="english">English</option>
+          <option value="sanskrit">Sanskrit</option>
+          <option value="social science">Social Science</option>
+        </select>
+        <select id="dayFilter">
+          <option value="all">All Days</option>
+          <option value="mon">Monday</option>
+          <option value="tue">Tuesday</option>
+          <option value="wednesday">Wednesday</option>
+          <option value="thursday">Thursday</option>
+          <option value="friday">Friday</option>
+          <option value="saturday">Saturday</option>
+        </select>
+        <button id="scannerBtn" class="bg-yellow" onclick="openScanner()" disabled>Start QR Scan</button>
+      </div>
+      <div>
+        <button class="bg-yellow" onclick="finalSubmit()">Submit All</button>
+        <button class="bg-yellow" style="background:#ca8a04;color:#fff;" onclick="downloadPDF()">Download PDF</button>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Student ID</th><th>Class</th><th>Subject</th><th>Day</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceBody"></tbody>
+      </table>
+    </div>
+    <p id="saveStatus" style="margin-top:8px;font-weight:600;"></p>
+  </div>
+
+  <!-- QR Scanner -->
+  <div class="qr-overlay">
+    <div class="qr-box">
+      <h3 style="font-weight:bold;margin-bottom:12px;">QR Scanner</h3>
+      <div class="scanner-view" id="scannerView">
+        <video id="video" autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+        <canvas id="qrCanvas" hidden></canvas>
+        <div class="scanner-overlay"></div>
+      </div>
+      <p id="studentName">Scanning...</p>
+      <button id="submitBtn" class="primary" style="display:none;" onclick="submitAttendance()">Submit Attendance</button>
+      <button onclick="closeScanner()" class="close">Close</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    /* Sidebar & Theme toggles */
+    const sidebar=document.getElementById('sidebar');
+    const overlay=document.getElementById('sidebarOverlay');
+    document.getElementById('toggleSidebar').addEventListener('click',()=>{sidebar.style.transform='translateX(0)';overlay.style.display='block';});
+    document.getElementById('closeSidebar').addEventListener('click',()=>{sidebar.style.transform='translateX(100%)';overlay.style.display='none';});
+    overlay.addEventListener('click',()=>{sidebar.style.transform='translateX(100%)';overlay.style.display='none';});
+
+    let darkMode=false;
+    function toggleDarkMode(){
+      darkMode=!darkMode;
+      document.body.classList.toggle('dark-mode',darkMode);
+      document.getElementById('toggleThumb').style.transform=darkMode?'translateX(20px)':'translateX(0)';
+      document.getElementById('navToggleThumb').style.transform=darkMode?'translateX(20px)':'translateX(0)';
+    }
+    document.getElementById('themeToggleBtn').addEventListener('click',toggleDarkMode);
+    document.getElementById('navThemeToggle').addEventListener('click',toggleDarkMode);
+
+    /* Attendance + QR + Save Locally */
+    const classFilter=document.getElementById("classFilter");
+    const subjectFilter=document.getElementById("subjectFilter");
+    const dayFilter=document.getElementById("dayFilter");
+    const scannerBtn=document.getElementById("scannerBtn");
+    function validateScanner(){scannerBtn.disabled=!(classFilter.value!=="all"&&subjectFilter.value!=="all"&&dayFilter.value!=="all");}
+    classFilter.addEventListener("change",validateScanner);
+    subjectFilter.addEventListener("change",validateScanner);
+    dayFilter.addEventListener("change",validateScanner);
+
+    let video=document.getElementById("video"),canvas=document.getElementById("qrCanvas"),ctx=canvas.getContext("2d");
+    let stream,scanning=false,scannedStudent="",scannedIDs=new Set(),attendanceData=[],lastDetected=null,lastDetectedTime=0;
+    const DETECT_COOLDOWN_MS=1200; // small cooldown to avoid jitter
+
+    function renderAttendanceTable(){
+      const tbody=document.getElementById("attendanceBody");
+      tbody.innerHTML="";
+      attendanceData.forEach(s=>{
+        const row=document.createElement("tr");
+        row.innerHTML=`<td>${s.id}</td><td>${s.class}</td><td>${s.subject}</td><td>${s.day}</td><td>${s.status}</td>`;
+        tbody.appendChild(row);
+      });
+    }
+
+    function openScanner(){
+      document.querySelector(".qr-overlay").style.display="flex";
+      scannedStudent="";
+      document.getElementById('studentName').innerText='Scanning...';
+      navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
+      .then(s=>{stream=s;video.srcObject=stream;scanning=true;requestAnimationFrame(tick);})
+      .catch(err=>alert("Camera denied: "+err));
+    }
+    function closeScanner(){
+      scanning=false;if(stream)stream.getTracks().forEach(track=>track.stop());
+      document.querySelector(".qr-overlay").style.display="none";
+    }
+
+    function showToast(msg,type=''){
+      const t=document.getElementById('toast');
+      t.className='toast';
+      if(type==='success')t.classList.add('success');
+      if(type==='warn')t.classList.add('warn');
+      t.innerHTML=`<span>${msg}</span>`;
+      t.classList.add('show');
+      clearTimeout(t._hideTimeout);
+      t._hideTimeout=setTimeout(()=>{t.classList.remove('show');},1800);
+    }
+
+    function tick(){
+      if(!scanning){requestAnimationFrame(tick);return;} // keep loop stable
+      if(video.readyState===video.HAVE_ENOUGH_DATA){
+        // keep canvas same aspect as video to improve detection accuracy
+        canvas.height=video.videoHeight;canvas.width=video.videoWidth;
+        ctx.drawImage(video,0,0,canvas.width,canvas.height);
+        let imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+        let code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'attemptBoth'});
+        if(code && code.data){
+          const now=Date.now();
+          // avoid jitter: if same content detected within cooldown, ignore
+          if(lastDetected===code.data && (now-lastDetectedTime)<DETECT_COOLDOWN_MS){
+            requestAnimationFrame(tick);return;
+          }
+          lastDetected=code.data; lastDetectedTime=now;
+          scannedStudent=code.data.trim();
+
+          // Only treat as valid QR if decoded data length > 0 (jsQR already ensures QR) and doesn't look like noise
+          if(!scannedStudent){ requestAnimationFrame(tick); return; }
+
+          if(scannedIDs.has(scannedStudent)){
+            // Already scanned — show message but continue scanning
+            showToast('Already scanned: ' + scannedStudent,'warn');
+            requestAnimationFrame(tick);
+            return;
+          }
+
+          // New QR -> add
+          addScannedStudent(scannedStudent);
+          showToast('Scanned: ' + scannedStudent,'success');
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function addScannedStudent(id){
+      scannedIDs.add(id);
+      attendanceData.push({id,class:classFilter.value,subject:subjectFilter.value,day:dayFilter.value,status:"Present"});
+      renderAttendanceTable();
+    }
+
+    function getStoredAttendance(){const raw=localStorage.getItem("attendance_records");return raw?JSON.parse(raw):[];}
+    function storeAttendanceArray(arr){localStorage.setItem("attendance_records",JSON.stringify(arr));}
+    function saveAttendanceLocally(){
+      if(!attendanceData.length)return;
+      const existing=getStoredAttendance();
+      const toSave=attendanceData.map(s=>({...s,markedAt:new Date().toISOString()}));
+      storeAttendanceArray(existing.concat(toSave));
+    }
+    function finalSubmit(){
+      if(attendanceData.length===0){alert("No attendance data to submit!");return;}
+      document.getElementById("saveStatus").innerText="Submitting attendance...";
+      saveAttendanceLocally&&saveAttendanceLocally();
+      const payload=attendanceData.map(s=>({student_id:s.id,class_name:s.class,subject:s.subject,day:s.day,status:s.status}));
+      fetch("/save_attendance",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+      .then(res=>res.json())
+      .then(data=>{
+        document.getElementById("saveStatus").innerText=`✅ Saved to server (${data.saved} rows) and locally.`;
+      })
+      .catch(err=>{
+        console.warn("Server save failed:",err);
+        document.getElementById("saveStatus").innerText="⚠ Server save failed — saved locally.";
+      });
+    }
+    function downloadPDF(){
+      if(!attendanceData.length){alert("No data!");return;}
+      const {jsPDF}=window.jspdf;
+      const doc=new jsPDF();
+      doc.text("Attendance Report",14,20);
+      const rows=attendanceData.map(s=>[s.id,s.class,s.subject,s.day,s.status]);
+      doc.autoTable({head:[["Student ID","Class","Subject","Day","Status"]],body:rows});
+      doc.save("attendance_report.pdf");
+    }
+  </script>
+</body>
+
+</html>
